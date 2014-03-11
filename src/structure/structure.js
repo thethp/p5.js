@@ -2,21 +2,21 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
 
-  Processing.prototype.exit = function() {
+  P5.prototype.exit = function() {
     throw 'Not implemented';
   };
 
-  Processing.prototype.noLoop = function() {
+  P5.prototype.noLoop = function() {
     this.settings.loop = false;
   };
 
-  Processing.prototype.loop = function() {
+  P5.prototype.loop = function() {
     this.settings.loop = true;
   };
 
-  Processing.prototype.pushStyle = function() {
+  P5.prototype.pushStyle = function() {
 
     this.styles.push({
       fillStyle: this.curElement.context.fillStyle, // fill
@@ -38,7 +38,7 @@ define(function (require) {
     });
   };
 
-  Processing.prototype.popStyle = function() {
+  P5.prototype.popStyle = function() {
 
     var lastS = this.styles.pop();
 
@@ -61,14 +61,14 @@ define(function (require) {
 
   };
 
-  Processing.prototype.redraw = function() {
+  P5.prototype.redraw = function() {
     throw 'Not implemented';
   };
 
-  Processing.prototype.size = function() {
+  P5.prototype.size = function() {
     throw 'Not implemented';
   };
 
-  return Processing;
+  return P5;
 
 });

@@ -2,12 +2,12 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
 
   require('log');
 
-  Processing.prototype.print = Processing.prototype.log;
-  Processing.prototype.println = Processing.prototype.log;
+  P5.prototype.print = P5.prototype.log;
+  P5.prototype.println = P5.prototype.log;
 
-  return Processing;
+  return P5;
 });

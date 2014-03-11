@@ -146,7 +146,7 @@ define(function (require) {
    * @return {PVector} The new PVector object.
    */  
    PVector.random2D = function () {
-    // This should include an option to use p5.js seeded random number
+    // This should include an option to use P5.js seeded random number
     return this.fromAngle(Math.random(Math.PI*2));
   };
 
@@ -156,7 +156,7 @@ define(function (require) {
    * @return {PVector} The new PVector object.
    */  
   PVector.random3D = function () {
-      // This should include an option to use p5.js seeded random number
+      // This should include an option to use P5.js seeded random number
       var angle = Math.random()*Math.PI*2;
       var vz = Math.random()*2-1;
       var vx = Math.sqrt(1-vz*vz)*Math.cos(angle);

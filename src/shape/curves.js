@@ -2,9 +2,9 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
 
-  Processing.prototype.bezier = function(x1, y1, x2, y2, x3, y3, x4, y4) {
+  P5.prototype.bezier = function(x1, y1, x2, y2, x3, y3, x4, y4) {
     this.curElement.context.beginPath();
     this.curElement.context.moveTo(x1, y1);
     this.curElement.context.bezierCurveTo(x2, y2, x3, y3, x4, y4);
@@ -13,46 +13,46 @@ define(function (require) {
     return this;
   };
 
-  Processing.prototype.bezierDetail = function() {
+  P5.prototype.bezierDetail = function() {
     // TODO
 
   };
 
-  Processing.prototype.bezierPoint = function() {
+  P5.prototype.bezierPoint = function() {
     // TODO
 
   };
 
-  Processing.prototype.bezierTangent = function() {
+  P5.prototype.bezierTangent = function() {
     // TODO
 
   };
 
-  Processing.prototype.curve = function() {
+  P5.prototype.curve = function() {
     // TODO
 
   };
 
-  Processing.prototype.curveDetail = function() {
+  P5.prototype.curveDetail = function() {
     // TODO
 
   };
 
-  Processing.prototype.curvePoint = function() {
+  P5.prototype.curvePoint = function() {
     // TODO
 
   };
 
-  Processing.prototype.curveTangent = function() {
+  P5.prototype.curveTangent = function() {
     // TODO
 
   };
 
-  Processing.prototype.curveTightness = function() {
+  P5.prototype.curveTightness = function() {
     // TODO
 
   };
 
-  return Processing;
+  return P5;
 
 });

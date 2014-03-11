@@ -2,44 +2,44 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
 
-  Processing.prototype.beginRaw = function() {
+  P5.prototype.beginRaw = function() {
     // TODO
 
   };
 
-  Processing.prototype.beginRecord = function() {
+  P5.prototype.beginRecord = function() {
     // TODO
 
   };
 
-  Processing.prototype.createOutput = function() {
+  P5.prototype.createOutput = function() {
     // TODO
 
   };
 
-  Processing.prototype.createWriter  = function(name) {
+  P5.prototype.createWriter  = function(name) {
     if (this.pWriters.indexOf(name) === -1) { // check it doesn't already exist
       this.pWriters.name = new this.PrintWriter(name);
     }
   };
 
-  Processing.prototype.endRaw = function() {
+  P5.prototype.endRaw = function() {
     // TODO
 
   };
 
-  Processing.prototype.endRecord  = function() {
+  P5.prototype.endRecord  = function() {
     // TODO
 
   };
 
-  Processing.prototype.escape = function(content) {
+  P5.prototype.escape = function(content) {
     return content;
   };
 
-  Processing.prototype.PrintWriter = function(name) {
+  P5.prototype.PrintWriter = function(name) {
      this.name = name;
      this.content = '';
      this.print = function(data) { this.content += data; };
@@ -48,44 +48,44 @@ define(function (require) {
      this.close = function() { this.writeFile(this.content); };
   };
 
-  Processing.prototype.saveBytes = function() {
+  P5.prototype.saveBytes = function() {
     // TODO
 
   };
 
-  Processing.prototype.saveJSONArray = function() {
+  P5.prototype.saveJSONArray = function() {
     // TODO
 
   };
 
-  Processing.prototype.saveJSONObject = function() {
+  P5.prototype.saveJSONObject = function() {
     // TODO
 
   };
 
-  Processing.prototype.saveStream = function() {
+  P5.prototype.saveStream = function() {
     // TODO
 
   };
 
-  Processing.prototype.saveStrings = function(list) {
+  P5.prototype.saveStrings = function(list) {
     this.writeFile(list.join('\n'));
   };
 
-  Processing.prototype.saveXML = function() {
+  P5.prototype.saveXML = function() {
     // TODO
 
   };
 
-  Processing.prototype.selectOutput = function() {
+  P5.prototype.selectOutput = function() {
     // TODO
 
   };
 
-  Processing.prototype.writeFile = function(content) {
+  P5.prototype.writeFile = function(content) {
     this.open('data:text/json;charset=utf-8,' + this.escape(content), 'download');
   };
 
-  return Processing;
+  return P5;
 
 });

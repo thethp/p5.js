@@ -2,13 +2,13 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
 
-  Processing.prototype.isKeyPressed = Processing.prototype.keyIsPressed = function() {
+  P5.prototype.isKeyPressed = P5.prototype.keyIsPressed = function() {
     return this.keyDown;
   };
 
-  Processing.prototype.onkeydown = function(e) {
+  P5.prototype.onkeydown = function(e) {
     var keyPressed = this.keyPressed || window.keyPressed;
 
     this._setProperty('keyDown', true);
@@ -19,7 +19,7 @@ define(function (require) {
     }
   };
 
-  Processing.prototype.onkeyup = function(e) {
+  P5.prototype.onkeyup = function(e) {
     var keyReleased = this.keyReleased || window.keyReleased;
 
     this._setProperty('keyDown', false);
@@ -28,7 +28,7 @@ define(function (require) {
     }
   };
 
-  Processing.prototype.onkeypress = function(e) {
+  P5.prototype.onkeypress = function(e) {
     var keyTyped = this.keyTyped || window.keyTyped;
 
     if (typeof keyTyped === 'function') {
@@ -36,6 +36,6 @@ define(function (require) {
     }
   };
 
-  return Processing;
+  return P5;
 
 });

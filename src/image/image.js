@@ -7,7 +7,7 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
   var canvas = require('canvas');
   var constants = require('constants');
   var Filters = require('filters');
@@ -22,7 +22,7 @@ define(function (require) {
    * @param  {Integer} height
    * @return {PImage}
    */
-  Processing.prototype.createImage = function(width, height) {
+  P5.prototype.createImage = function(width, height) {
     return new PImage(width, height, this);
   };
 
@@ -39,7 +39,7 @@ define(function (require) {
    *                             be passed the PImage
    * @return {PImage}
    */
-  Processing.prototype.loadImage = function(path, callback) {
+  P5.prototype.loadImage = function(path, callback) {
     var img = new Image();
     var pImg = new PImage(1, 1, this);
 
@@ -67,7 +67,7 @@ define(function (require) {
   };
 
   /**
-   * Draw an image to the main canvas of the p5js sketch
+   * Draw an image to the main canvas of the P5js sketch
    *
    * @param  {PImage} image
    * @param  {[type]} x
@@ -75,7 +75,7 @@ define(function (require) {
    * @param  {[type]} width
    * @param  {[type]} height   
    */
-  Processing.prototype.image = function(image, x, y, width, height) {
+  P5.prototype.image = function(image, x, y, width, height) {
     if (width === undefined){
       width = image.width;
     }
@@ -90,7 +90,7 @@ define(function (require) {
    * Set image mode
    * @param {String} m the mode
    */
-  Processing.prototype.imageMode = function(m) {
+  P5.prototype.imageMode = function(m) {
     if (m === constants.CORNER || m === constants.CORNERS || m === constants.CENTER) {
       this.settings.imageMode = m;
     }
@@ -110,7 +110,7 @@ define(function (require) {
    *
    * @param {Integer} width
    * @param {Integer} height
-   * @param {Object} pInst an instance of a p5js sketch
+   * @param {Object} pInst an instance of a P5js sketch
    */
   function PImage(width, height, pInst){
     this.width = width;
@@ -365,7 +365,7 @@ define(function (require) {
    * @param  {PImage|undefined} srcImage source image
    *
    * TODO: - Accept an array of alpha values.
-   *       - Use other channels of an image. Processing uses the
+   *       - Use other channels of an image. P5 uses the
    *       blue channel (which feels kind of arbitrary). Note: at the
    *       moment this method does not match native processings original
    *       functionality exactly.

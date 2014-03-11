@@ -2,44 +2,44 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
   var polarGeometry = require('polargeometry');
   var constants = require('constants');
 
-  Processing.prototype.acos = Math.acos;
+  P5.prototype.acos = Math.acos;
 
-  Processing.prototype.asin = Math.asin;
+  P5.prototype.asin = Math.asin;
 
-  Processing.prototype.atan = Math.atan;
+  P5.prototype.atan = Math.atan;
 
-  Processing.prototype.atan2 = Math.atan2;
+  P5.prototype.atan2 = Math.atan2;
 
-  Processing.prototype.cos = function(x) {
+  P5.prototype.cos = function(x) {
     return Math.cos(this.radians(x));
   };
 
-  Processing.prototype.degrees = function(angle) {
+  P5.prototype.degrees = function(angle) {
     return this.settings.angleMode === constants.DEGREES ? angle : polarGeometry.radiansToDegrees(angle);
   };
 
-  Processing.prototype.radians = function(angle) {
+  P5.prototype.radians = function(angle) {
     return this.settings.angleMode === constants.RADIANS ? angle : polarGeometry.degreesToRadians(angle);
   };
 
-  Processing.prototype.sin = function(x) {
+  P5.prototype.sin = function(x) {
     return Math.sin(this.radians(x));
   };
 
-  Processing.prototype.tan = function(x) {
+  P5.prototype.tan = function(x) {
     return Math.tan(this.radians(x));
   };
 
-  Processing.prototype.angleMode = function(mode) {
+  P5.prototype.angleMode = function(mode) {
     if (mode === constants.DEGREES || mode === constants.RADIANS) {
       this.settings.angleMode = mode;
     }
   };
 
-  return Processing;
+  return P5;
 
 });

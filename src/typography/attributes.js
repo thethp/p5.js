@@ -2,41 +2,41 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
   var constants = require('constants');
 
-  Processing.prototype.textAlign = function(a) {
+  P5.prototype.textAlign = function(a) {
     if (a === constants.LEFT || a === constants.RIGHT || a === constants.CENTER) {
       this.curElement.context.textAlign = a;
     }
   };
 
-  Processing.prototype.textFont = function(str) {
+  P5.prototype.textFont = function(str) {
     this._setProperty('_textFont', str); //pend temp?
   };
 
-  Processing.prototype.textHeight = function(s) {
+  P5.prototype.textHeight = function(s) {
     return this.curElement.context.measureText(s).height;
   };
 
-  Processing.prototype.textLeading = function(l) {
+  P5.prototype.textLeading = function(l) {
     this._setProperty('_textLeading', l);
   };
 
-  Processing.prototype.textSize = function(s) {
+  P5.prototype.textSize = function(s) {
     this._setProperty('_textSize', s);
   };
 
-  Processing.prototype.textStyle = function(s) {
+  P5.prototype.textStyle = function(s) {
     if (s === constants.NORMAL || s === constants.ITALIC || s === constants.BOLD) {
       this._setProperty('_textStyle', s);
     }
   };
 
-  Processing.prototype.textWidth = function(s) {
+  P5.prototype.textWidth = function(s) {
     return this.curElement.context.measureText(s).width;
   };
 
-  return Processing;
+  return P5;
 
 });

@@ -2,7 +2,7 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
   var PVector = require('math.pvector');
 
   require('color.creating_reading');
@@ -35,14 +35,14 @@ define(function (require) {
   require('typography.loading_displaying');
 
   if (document.readyState === 'complete') {
-    Processing._init();
+    P5._init();
   } else {
-    window.addEventListener('load', Processing._init , false);
+    window.addEventListener('load', P5._init , false);
   }
 
-  window.Processing = Processing;
+  window.P5 = P5;
   window.PVector = PVector;
 
-  return Processing;
+  return P5;
 
 });

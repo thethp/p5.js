@@ -2,14 +2,14 @@ define(function (require) {
 
   'use strict';
 
-  var Processing = require('core');
+  var P5 = require('core');
 
-  Processing.prototype.append = function(array, value) {
+  P5.prototype.append = function(array, value) {
     array.push(value);
     return array;
   };
 
-  Processing.prototype.arrayCopy = function(src, srcPosition, dst, dstPosition, length) { //src, srcPosition, dst, dstPosition, length
+  P5.prototype.arrayCopy = function(src, srcPosition, dst, dstPosition, length) { //src, srcPosition, dst, dstPosition, length
     if (typeof length !== 'undefined') {
       for (var i=srcPosition; i < Math.min(srcPosition + length, src.length); i++) {
         dst[dstPosition+i] = src[i];
@@ -23,20 +23,20 @@ define(function (require) {
     }
   };
 
-  Processing.prototype.concat = function(list0, list1) {
+  P5.prototype.concat = function(list0, list1) {
     return list0.concat(list1);
   };
 
-  Processing.prototype.reverse = function(list) {
+  P5.prototype.reverse = function(list) {
     return list.reverse();
   };
 
-  Processing.prototype.shorten = function(list) {
+  P5.prototype.shorten = function(list) {
     list.pop();
     return list;
   };
 
-  Processing.prototype.sort = function(list, count) {
+  P5.prototype.sort = function(list, count) {
     var arr = count ? list.slice(0, Math.min(count, list.length)) : list;
     var rest = count ? list.slice(Math.min(count, list.length)) : [];
     if (typeof arr[0] === 'string') {
@@ -47,11 +47,11 @@ define(function (require) {
     return arr.concat(rest);
   };
 
-  Processing.prototype.splice = function(list, value, index) {
+  P5.prototype.splice = function(list, value, index) {
     return list.splice(index,0,value);
   };
 
-  Processing.prototype.subset = function(list, start, count) {
+  P5.prototype.subset = function(list, start, count) {
     if (typeof count !== 'undefined') {
       return list.slice(start, start+count);
     } else {
@@ -59,6 +59,6 @@ define(function (require) {
     }
   };
 
-  return Processing;
+  return P5;
 
 });
