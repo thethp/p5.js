@@ -13,7 +13,7 @@ define(function (require) {
 
   /**
    * p5
-   * 
+   *
    * This is the p5 instance constructor.
    *
    * A p5 instance holds all the properties and methods related to
@@ -76,7 +76,7 @@ define(function (require) {
      *   </code></div>
      */
     this.focused = true;
-  
+
     /**
      * System variable that stores the width of the entire screen display. This
      * is used to run a full-screen program on any display size.
@@ -89,7 +89,7 @@ define(function (require) {
      *   </code></div>
      */
     this.displayWidth = screen.width;
-  
+
     /**
      * System variable that stores the height of the entire screen display. This
      * is used to run a full-screen program on any display size.
@@ -102,7 +102,7 @@ define(function (require) {
      *   </code></div>
      */
     this.displayHeight = screen.height;
-  
+
     /**
      * System variable that stores the width of the inner window, it maps to
      * window.innerWidth
@@ -115,7 +115,7 @@ define(function (require) {
      *   </code></div>
      */
     this.windowWidth = window.innerWidth;
-  
+
     /**
      * System variable that stores the height of the inner window, it maps to
      * window.innerHeight
@@ -140,7 +140,7 @@ define(function (require) {
      * @for Environment:Environment
      */
     this.width = 0;
-  
+
     /**
      * System variable that stores the height of the drawing canvas. This value
      * is set by the second parameter of the createCanvas() function. For
@@ -176,7 +176,7 @@ define(function (require) {
      *     }
      *
      *     function draw() {
-     *       rect(a++%width, 10, 2, 80); 
+     *       rect(a++%width, 10, 2, 80);
      *     }
      *   </code></div>
      */
@@ -191,10 +191,10 @@ define(function (require) {
      * noLoop() stops the code in draw() from executing, redraw() causes the
      * code inside draw() to execute once, and loop() will cause the code
      * inside draw() to resume executing continuously.
-     * 
+     *
      * The number of times draw() executes in each second may be controlled with
      * the frameRate() function.
-     * 
+     *
      * There can only be one draw() function for each sketch, and draw() must
      * exist if you want the code to run continuously, or to process events such
      * as mousePressed(). Sometimes, you might have an empty call to draw() in
@@ -246,7 +246,7 @@ define(function (require) {
 
       }
     };
-    
+
     //////////////////////////////////////////////
     // PRIVATE p5 PROPERTIES AND METHODS
     //////////////////////////////////////////////
@@ -258,6 +258,9 @@ define(function (require) {
     this._updateInterval = 0;
     this._isGlobal = false;
     this._loop = true;
+    this._curveVertices = [];
+    this._contourInited = false;
+    this._contourVertices = [];
     this.styles = [];
     this._defaultCanvasSize = {
       width: 100,

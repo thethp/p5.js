@@ -119,9 +119,18 @@ define(function (require) {
     return this;
   };
 
-  p5.prototype.curveVertex = function() {
-    // TODO
-    throw 'not yet implemented';
+  p5.prototype.curveVertex = function(x,y) {
+    var pt = {};
+    pt.x = x;
+    pt.y = y;
+    this._curveVertices.push(pt);
+
+    if(this._curveVertices.length >= 4) {
+      this.curve(this._curveVertices[0].x,this._curveVertices[0].y, this._curveVertices[1].x,this._curveVertices[1].y, this._curveVertices[2].x,this._curveVertices[2].y, this._curveVertices[3].x,this._curveVertices[3].y);
+      this._curveVertices.shift();
+    }
+
+    return this;
   };
 
   /**
@@ -196,7 +205,7 @@ define(function (require) {
    * must be prefaced with a call to vertex() to set the first anchor point.
    * This function must be used between beginShape() and endShape() and only
    * when there is no MODE parameter specified to beginShape().
-   * 
+   *
    * @method quadraticVertex
    * @param  {Number} cx x-coordinate for the control point
    * @param  {Number} cy y-coordinate for the control point
