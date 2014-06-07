@@ -13,7 +13,7 @@ define(function (require) {
   require('dom.pelement');
   require('environment');
   require('image');
-  require('image.loading_displaying');
+  require('image.pixels');
   require('input.files');
   require('input.keyboard');
   require('input.mouse');
@@ -47,19 +47,20 @@ define(function (require) {
    * @return {Undefined}
    */
   var _globalInit = function() {
-    // if there is a setup or draw function on the window
-    // then instantiate p5 in "global" mode
-    if((window.setup && typeof window.setup === 'function') ||
-      (window.draw && typeof window.draw === 'function')) {
-      new p5();
+    if(!window.PHANTOMJS) {
+      // If there is a setup or draw function on the window
+      // then instantiate p5 in "global" mode
+      if((window.setup && typeof window.setup === 'function') ||
+        (window.draw && typeof window.draw === 'function')) {
+        new p5();
+      }
     }
   };
 
+  // TODO: ???
   if (document.readyState === 'complete') {
-    // TODO: ???
     _globalInit();
   } else {
-    // TODO: ???
     window.addEventListener('load', _globalInit , false);
   }
 

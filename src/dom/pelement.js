@@ -1,5 +1,10 @@
+/**
+ * @module DOM
+ * @for PElement
+ */
 define(function(require) {
 
+  var p5 = require('core');
   var constants = require('constants');
 
   function PElement(elt, pInst) {
@@ -7,78 +12,141 @@ define(function(require) {
     this.pInst = pInst;
     this.width = this.elt.offsetWidth;
     this.height = this.elt.offsetHeight;
-    this.elt.style.position = 'absolute';
-    this.x = 0;
-    this.y = 0;
-    this.elt.style.left = this.x+ 'px';
-    this.elt.style.top = this.y+ 'px';
-    if (elt instanceof HTMLCanvasElement) {
+    if (elt instanceof HTMLCanvasElement && this.pInst) {
       this.context = elt.getContext('2d');
+      // for pixel method sharing with pimage
+      this.pInst._setProperty('canvas', elt);
     }
   }
+
+  /**
+   * 
+   * Attaches the element to the parent specified. A way of setting
+   * the container for the element. Accepts either a string ID or
+   * DOM node.
+   * 
+   * @for    DOM:PElement
+   * @method parent
+   * @param  {String|Object} parent the ID or node of the parent elt
+   */
+  PElement.prototype.parent = function(parent) {
+    if (typeof parent === 'string') {
+      parent = document.getElementById(parent);
+    }
+    parent.appendChild(this.elt);
+  };
+
+  /**
+   * 
+   * Sets the inner HTML of the element. Replaces any existing html.
+   * 
+   * @for    DOM:PElement
+   * @method html
+   * @param  {String} html the HTML to be placed inside the element
+   */
   PElement.prototype.html = function(html) {
     this.elt.innerHTML = html;
   };
+
+  /**
+   * 
+   * Sets the position of the element relative to (0, 0) of the
+   * window. Essentially, sets position:absolute and left and top
+   * properties of style.
+   * 
+   * @for    DOM:PElement
+   * @method position
+   * @param  {Number} x x-position relative to upper left of window
+   * @param  {Number} y y-position relative to upper left of window
+   */
   PElement.prototype.position = function(x, y) {
-    this.x = x;
-    this.y = y;
+    this.elt.style.position = 'absolute';
     this.elt.style.left = x+'px';
     this.elt.style.top = y+'px';
   };
-  PElement.prototype.size = function(w, h) {
-    var aW = w;
-    var aH = h;
-    var AUTO = constants.AUTO;
 
-    if (aW !== AUTO || aH !== AUTO) {
-      if (aW === AUTO) {
-        aW = h * this.elt.width / this.elt.height;
-      } else if (aH === AUTO) {
-        aH = w * this.elt.height / this.elt.width;
-      }
 
-      if (this.elt instanceof HTMLCanvasElement) { // set diff for cnv vs normal div
-        this.elt.setAttribute('width', aW);
-        this.elt.setAttribute('height', aH);
-      } else {
-        this.elt.style.width = aW;
-        this.elt.style.height = aH;
-      }
-      this.width = this.elt.offsetWidth;
-      this.height = this.elt.offsetHeight;
-      if (this.pInst.curElement.elt === this.elt) {
-        this.pInst.width = this.elt.offsetWidth;
-        this.pInst.height = this.elt.offsetHeight;
-      }
-    }
-  };
   PElement.prototype.style = function(s) {
     this.elt.style.cssText += s;
   };
+
+  /**
+   * 
+   * Sets the ID of the element
+   * 
+   * @for    DOM:PElement
+   * @method id
+   * @param  {String} id ID of the element
+   */
   PElement.prototype.id = function(id) {
     this.elt.id = id;
   };
+
+  /**
+   * 
+   * Adds given class to the element
+   * 
+   * @for    DOM:PElement
+   * @method class
+   * @param  {String} class class to add
+   */
   PElement.prototype.class = function(c) {
-    this.elt.className = c;
+    this.elt.className += ' '+c;
   };
-  PElement.prototype.show = function() {
-    this.elt.style.display = 'block';
+  
+  /**
+   * The .mousePressed() function is called once after every time a 
+   * mouse button is pressed over the element. This can be used to
+   * attach an element specific event listeners.
+   *
+   * @for    DOM:PElement
+   * @method mousePressed
+   * @param  {Function} fxn function to be fired when mouse is
+   *                    pressed over the element.
+   */
+  PElement.prototype.mousePressed = function (fxn) {
+    attachListener('click', fxn, this);
   };
-  PElement.prototype.hide = function() {
-    this.elt.style.display = 'none';
-  };
-  PElement.prototype.mousePressed = function(fxn) {
-    var _this = this;
-    this.elt.addEventListener('click', function(e){fxn(e, _this);}, false);
-  }; // pend false?
-  PElement.prototype.mouseOver = function(fxn) {
-    var _this = this;
-    this.elt.addEventListener('mouseover', function(e){fxn(e, _this);}, false);
-  };
-  PElement.prototype.mouseOut = function(fxn) {
-    var _this = this;
-    this.elt.addEventListener('mouseout', function(e){fxn(e, _this);}, false);
+  
+  /**
+   * The .mouseOver() function is called once after every time a 
+   * mouse moves onto the element. This can be used to attach an 
+   * element specific event listener.
+   *
+   * @for    DOM:PElement
+   * @method mouseOver
+   * @param  {Function} fxn function to be fired when mouse is
+   *                    moved over the element.
+   */
+  PElement.prototype.mouseOver = function (fxn) {
+    attachListener('mouseover', fxn, this);
   };
 
+  /**
+   * The .mouseOut() function is called once after every time a 
+   * mouse moves off the element. This can be used to attach an 
+   * element specific event listener.
+   *
+   * @for    DOM:PElement
+   * @method mouseOut
+   * @param  {Function} fxn function to be fired when mouse is
+   *                    moved off the element.
+   */
+  PElement.prototype.mouseOut = function (fxn) {
+    attachListener('mouseout', fxn, this);
+  };
+
+
+  function attachListener(ev, fxn, ctx) {
+    var _this = ctx;
+    var f = function (e) { fxn(e, _this); };
+    ctx.elt.addEventListener(ev, f, false);
+    if (ctx.pInst) {
+      ctx.pInst._events[ev].push([ctx.elt, f]);
+    }
+  }
+
+  p5.PElement = PElement;
+  
   return PElement;
 });

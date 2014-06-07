@@ -19,16 +19,22 @@ define(function (require) {
   var constants = require('constants');
   var Filters = require('filters');
 
+  p5.prototype._imageMode = constants.CORNER;
+  p5.prototype._tint = null;
+
   /*
    * Global/P5 methods
    */
 
   /**
-   * Create a new empty PImage object.
+   * Creates a new PImage (the datatype for storing images). This provides a
+   * fresh buffer of pixels to play with. Set the size of the buffer with the
+   * width and height parameters.
+   *
    * @method createImage
-   * @param  {Integer} width
-   * @param  {Integer} height
-   * @return {PImage} the PImage object
+   * @param  {Integer} width  width in pixels
+   * @param  {Integer} height height in pixels
+   * @return {PImage}         the PImage object
    * @for Image
    */
   p5.prototype.createImage = function(width, height) {
@@ -41,12 +47,13 @@ define(function (require) {
    * The image may not be immediately available for rendering
    * If you want to ensure that the image is ready before doing
    * anything with it you can do perform those operations in the
-   * callback.
+   * callback, or place the loadImage() call in preload().
    * 
    * @method loadImage
    * @param  {String}   path
-   * @param  {Function} callback Function to be called once the image is loaded. Will be passed the PImage.
-   * @return {PImage} the PImage object
+   * @param  {Function} callback Function to be called once the image is
+   *                             loaded. Will be passed the PImage.
+   * @return {PImage}            the PImage object
    * @for Loading & Displaying
    */
   p5.prototype.loadImage = function(path, callback) {
@@ -79,12 +86,12 @@ define(function (require) {
   /**
    * Draw an image to the main canvas of the p5js sketch
    *
-   * @method image
-   * @param  {PImage} image
-   * @param  {[type]} x
-   * @param  {[type]} y
-   * @param  {[type]} width
-   * @param  {[type]} height   
+   * @method image 
+   * @param  {PImage} image the image to display
+   * @param  {[type]} x x-coordinate of the image
+   * @param  {[type]} y y-coordinate of the image
+   * @param  {[type]} width width to display the image
+   * @param  {[type]} height height to display the image
    * @for Loading & Displaying
    */
   p5.prototype.image = function(image, x, y, width, height) {
@@ -94,41 +101,139 @@ define(function (require) {
     if (height === undefined){
       height = image.height;
     }
-    var vals = canvas.modeAdjust(x, y, width, height, this.settings.imageMode);
-    this.curElement.context.drawImage(image.canvas, vals.x, vals.y, vals.w, vals.h);
+    var vals = canvas.modeAdjust(x, y, width, height, this._imageMode);
+    // tint the image if there is a tint
+    if (this._tint) {
+      this._curElement.context.drawImage(
+        this._getTintedImageCanvas(image),
+        vals.x,
+        vals.y,
+        vals.w,
+        vals.h);
+    } else {
+      this._curElement.context.drawImage(
+        image.canvas,
+        vals.x,
+        vals.y,
+        vals.w,
+        vals.h);
+    }
   };
 
   /**
-   * Set image mode. Modifies the location from which images are drawn by changing the way in which parameters given to image() are intepreted.
+   * Sets the fill value for displaying images. Images can be tinted to
+   * specified colors or made transparent by including an alpha value.
+   *
+   * To apply transparency to an image without affecting its color, use 
+   * white as the tint color and specify an alpha value. For instance, 
+   * tint(255, 128) will make an image 50% transparent (assuming the default
+   * alpha range of 0-255, which can be changed with colorMode()). 
+   *
+   * The value for the gray parameter must be less than or equal to the current
+   * maximum value as specified by colorMode(). The default maximum value is
+   * 255.
+   *
+   * @method tint
+   * @for Loading & Displaying
+   * @param {Number|Array} v1   gray value, red or hue value (depending on the
+   *                            current color mode), or color Array
+   * @param {Number|Array} [v2] green or saturation value (depending on the
+   *                            current color mode)
+   * @param {Number|Array} [v3] blue or brightness value (depending on the
+   *                            current color mode)
+   * @param {Number|Array} [a]  opacity of the background
+   */
+  p5.prototype.tint = function() {
+    var c = this.getNormalizedColor(arguments);
+    this._tint = c;
+  };
 
-The default mode is imageMode(CORNER), which interprets the second and third parameters of image() as the upper-left corner of the image. If two additional parameters are specified, they are used to set the image's width and height.
+  /**
+   * Removes the current fill value for displaying images and reverts to
+   * displaying images with their original hues.
+   *
+   * @method noTint
+   * @for Loading & Displaying
+   */
+  p5.prototype.noTint = function() {
+    this._tint = null;
+  };
 
-imageMode(CORNERS) interprets the second and third parameters of image() as the location of one corner, and the fourth and fifth parameters as the opposite corner.
+  /**
+   * Apply the current tint color to the input image, return the resulting
+   * canvas.
+   *
+   * @param {PImage} The image to be tinted
+   * @return {canvas} The resulting tinted canvas
+   */
+  p5.prototype._getTintedImageCanvas = function(image) {
+    var pixels = Filters._toPixels(image.canvas);
+    var tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width = image.canvas.width;
+    tmpCanvas.height = image.canvas.height;
+    var tmpCtx = tmpCanvas.getContext('2d');
+    var id = tmpCtx.createImageData(image.canvas.width, image.canvas.height);
+    var newPixels = id.data;
 
-imageMode(CENTER) interprets the second and third parameters of image() as the image's center point. If two additional parameters are specified, they are used to set the image's width and height.
+    for(var i = 0; i < pixels.length; i += 4) {
+      var r = pixels[i];
+      var g = pixels[i+1];
+      var b = pixels[i+2];
+      var a = pixels[i+3];
 
-The parameter must be written in ALL CAPS because Processing is a case-sensitive language. 
+      newPixels[i] = r*this._tint[0]/255;
+      newPixels[i+1] = g*this._tint[1]/255;
+      newPixels[i+2] = b*this._tint[2]/255;
+      newPixels[i+3] = a*this._tint[3]/255;
+    }
+
+    tmpCtx.putImageData(id, 0, 0);
+    return tmpCanvas;
+  };
+
+  /**
+   * Set image mode. Modifies the location from which images are drawn by
+   * changing the way in which parameters given to image() are intepreted.
+   * The default mode is imageMode(CORNER), which interprets the second and
+   * third parameters of image() as the upper-left corner of the image. If
+   * two additional parameters are specified, they are used to set the image's
+   * width and height.
+   *
+   * imageMode(CORNERS) interprets the second and third parameters of image()
+   * as the location of one corner, and the fourth and fifth parameters as the
+   * opposite corner.
+   * imageMode(CENTER) interprets the second and third parameters of image()
+   * as the image's center point. If two additional parameters are specified,
+   * they are used to set the image's width and height.
+   *
    * @method imageMode
    * @param {String} m The mode: either CORNER, CORNERS, or CENTER.
    * @for Loading & Displaying
    */
   p5.prototype.imageMode = function(m) {
-    if (m === constants.CORNER || m === constants.CORNERS || m === constants.CENTER) {
-      this.settings.imageMode = m;
+    if (m === constants.CORNER ||
+      m === constants.CORNERS ||
+      m === constants.CENTER) {
+      this._imageMode = m;
     }
   };
-
 
   /*
    * Class methods
    */
 
-
   /**
-   * Creates a new PImage. A PImage is a canvas backed representation of an image.
-   * p5 can display .gif, .jpg and .png images. Images may be displayed in 2D and 3D space. Before an image is used, it must be loaded with the loadImage() function. The PImage class contains fields for the width and height of the image, as well as an array called pixels[] that contains the values for every pixel in the image. The methods described below allow easy access to the image's pixels and alpha channel and simplify the process of compositing.
-
-Before using the pixels[] array, be sure to use the loadPixels() method on the image to make sure that the pixel data is properly loaded.
+   * Creates a new PImage. A PImage is a canvas backed representation of an
+   * image. p5 can display .gif, .jpg and .png images. Images may be displayed
+   * in 2D and 3D space. Before an image is used, it must be loaded with the
+   * loadImage() function. The PImage class contains fields for the width and
+   * height of the image, as well as an array called pixels[] that contains the
+   * values for every pixel in the image. The methods described below allow
+   * easy access to the image's pixels and alpha channel and simplify the
+   * process of compositing.
+   *
+   * Before using the pixels[] array, be sure to use the loadPixels() method on
+   * the image to make sure that the pixel data is properly loaded.
    * 
    * @constructor
    * @class PImage
@@ -137,13 +242,37 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
    * @param {Object} pInst An instance of a p5 sketch.
    */
   function PImage(width, height){
+    /**
+     * Image width.
+     * @property width
+     * @for PImage
+     */
     this.width = width;
+    /**
+     * Image height.
+     * @property height
+     * @for PImage
+     */
     this.height = height;
     this.canvas = document.createElement('canvas');
     this.canvas.width = this.width;
     this.canvas.height = this.height;
+    /**
+     * Array containing the color of every pixel in the image.
+     * @property pixels[]
+     * @for PImage
+     */
     this.pixels = [];
   }
+  p5.prototype.PImage = PImage; // hack to access PImage outside module??
+
+  /**
+   * Helper fxn for sharing pixel methods
+   *
+   */
+  PImage.prototype._setProperty = function (prop, value) {
+    this[prop] = value;
+  };
 
   /**
    * Loads the pixels data for this image into the [pixels] attribute.
@@ -152,63 +281,27 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
    * @for PImage
    */
   PImage.prototype.loadPixels = function(){
-    var x = 0;
-    var y = 0;
-    var w = this.width;
-    var h = this.height;
-
-    var imageData = this.canvas.getContext('2d').getImageData(x, y, w, h);
-    var data = imageData.data;
-
-    var pixels = [];
-    for (var i = 0; i < data.length; i += 4) {
-      pixels.push([data[i], data[i+1], data[i+2], data[i+3]]);
-    }
-
-    this.pixels = pixels;
+    p5.prototype.loadPixels.call(this);
   };
 
   /**
    * Updates the backing canvas for this image with the contents of
    * the [pixels] array.
    *
-   *
    * @method updatePixels
-   * @param  {Integer|undefined} x x offset of the target update area for the
-   *                               underlying canvas
-   * @param  {Integer|undefined} y y offset of the target update area for the
-   *                               underlying canvas
-   * @param  {Integer|undefined} w height of the target update area for the
-   *                               underlying canvas
-   * @param  {Integer|undefined} h height of the target update area for the
-   *                               underlying canvas
+   * @param {Integer|undefined} x x-offset of the target update area for the
+   *                              underlying canvas
+   * @param {Integer|undefined} y y-offset of the target update area for the
+   *                              underlying canvas
+   * @param {Integer|undefined} w height of the target update area for the
+   *                              underlying canvas
+   * @param {Integer|undefined} h height of the target update area for the
+   *                              underlying canvas
    * @for PImage
    */
   PImage.prototype.updatePixels = function(x, y, w, h){
-    if (x === undefined && y === undefined &&
-        w === undefined && h === undefined){
-      x = 0;
-      y = 0;
-      w = this.width;
-      h = this.height;
-    }
-
-    //unpack pixels[] to the canvas imageData format
-    var imageData = this.canvas.getContext('2d').getImageData(x, y, w, h);
-    var data = imageData.data;
-    for (var i = 0; i < this.pixels.length; i += 1) {
-      var j = i * 4;
-      data[j] = this.pixels[i][0];
-      data[j+1] = this.pixels[i][1];
-      data[j+2] = this.pixels[i][2];
-      data[j+3] = this.pixels[i][3];
-    }
-
-    this.canvas.getContext('2d').putImageData(imageData, x, y, 0, 0, w, h);
+    p5.prototype.updatePixels.call(this, x, y, w, h);
   };
-
-
-
 
   /**
    * Get a region of pixels from an image.
@@ -222,50 +315,15 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
    *
    * @method get
    * @for PImage
-   * @param  {Integer} x
-   * @param  {Integer} y
-   * @param  {Integer} w width
-   * @param  {Integer} h height
-   * @return {[Integer] | PImage | undefined} pixel [4 element integer] array or a PImage
+   * @param  {Number}               [x] x-coordinate of the pixel
+   * @param  {Number}               [y] y-coordinate of the pixel
+   * @param  {Number}               [w] width
+   * @param  {Number}               [h] height
+   * @return {Array/Color | PImage}     color of pixel at x,y in array format
+   *                                    [R, G, B, A] or PImage
    */
   PImage.prototype.get = function(x, y, w, h){
-    if (x === undefined && y === undefined &&
-        w === undefined && h === undefined){
-      x = 0;
-      y = 0;
-      w = this.width;
-      h = this.height;
-    } else if (w === undefined && h === undefined){
-      w = 1;
-      h = 1;
-    }
-
-    if(x > this.width || y > this.height){
-      return undefined;
-    }
-
-    var imageData = this.canvas.getContext('2d').getImageData(x, y, w, h);
-    var data = imageData.data;
-
-    if (w === 1 && h === 1){
-      var pixels = [];
-      
-      for (var i = 0; i < data.length; i += 4) {
-        pixels.push(data[i], data[i+1], data[i+2], data[i+3]);
-      }
-      
-      return pixels;
-    } else {
-      //auto constrain the width and height to
-      //dimensions of the source image
-      w = Math.min(w, this.width);
-      h = Math.min(h, this.height);
-
-      var region = new PImage(w, h);
-      region.canvas.getContext('2d').putImageData(imageData, 0, 0, 0, 0, w, h);
-
-      return region;
-    }
+    return p5.prototype.get.call(this, x, y, w, h);
   };
 
   /**
@@ -280,32 +338,26 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
    *
    * @method set
    * @for PImage
-   * @param {Integer} x
-   * @param {Integer} y
-   * @param {PImage|[Integer]}  imageData a pImage or an array representing a color.
+   * @param {Number}              x x-coordinate of the pixel
+   * @param {Number}              y y-coordinate of the pixel
+   * @param {Number|Array|Object}   insert a grayscale value |
+   *                                a color array | image to copy
    */
   PImage.prototype.set = function(x, y, imgOrCol){
-    var idx = (y * this.width) + x;
-
-    if (imgOrCol instanceof Array) {
-      if (idx < this.pixels.length){
-        this.pixels[idx] = imgOrCol;
-        this.updatePixels();
-      }
-    } else {
-      this.canvas.getContext('2d').drawImage(imgOrCol.canvas, 0, 0);
-      this.loadPixels();
-    }
+    p5.prototype.set.call(this, x, y, imgOrCol);
   };
 
 
   /**
-   * Resize this PImage.
+   * Resize the image to a new width and height. To make the image scale
+   * proportionally, use 0 as the value for the wide or high parameter.
+   * For instance, to make the width of an image 150 pixels, and change
+   * the height using the same proportion, use resize(150, 0).
+   *
    * @method resize
    * @for PImage
-   * @param  {[type]} width  [description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * @param {Number} width the resized image width
+   * @param {Number} height the resized image height
    */
   PImage.prototype.resize = function(width, height){
 
@@ -313,10 +365,11 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
     // and then copy back.
     //
     // There is a faster approach that involves just one copy and swapping the
-    // this.canvas reference. We could switch to that approach if (as i think is
-    // the case) there an expectation that the user would not hold a reference to
-    // the backing canvas of a pImage. But since we do not enforece that at the
-    // moment, I am leaving in the slower, but safer implementation.
+    // this.canvas reference. We could switch to that approach if (as i think
+    // is the case) there an expectation that the user would not hold a 
+    // reference to the backing canvas of a pImage. But since we do not
+    // enforece that at the moment, I am leaving in the slower, but safer
+    // implementation.
 
     var tempCanvas = document.createElement('canvas');
     tempCanvas.width = width;
@@ -363,39 +416,8 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
    * @param  {Integer} dh destination image height
    */
   PImage.prototype.copy = function() {
-    var srcImage, sx, sy, sw, sh, dx, dy, dw, dh;
-    if(arguments.length === 9){
-      srcImage = arguments[0];
-      sx = arguments[1];
-      sy = arguments[2];
-      sw = arguments[3];
-      sh = arguments[4];
-      dx = arguments[5];
-      dy = arguments[6];
-      dw = arguments[7];
-      dh = arguments[8];
-    } else if(arguments.length === 8){
-      sx = arguments[0];
-      sy = arguments[1];
-      sw = arguments[2];
-      sh = arguments[3];
-      dx = arguments[4];
-      dy = arguments[5];
-      dw = arguments[6];
-      dh = arguments[7];
-
-      srcImage = this;
-    } else {
-      throw new Error('Signature not supported');
-    }
-
-    this.canvas.getContext('2d').drawImage(srcImage.canvas,
-      sx, sy, sw, sh, dx, dy, dw, dh
-    );
+    p5.prototype.copy.apply(this, arguments);
   };
-
-
-
 
   /**
    * Masks part of an image from displaying by loading another
@@ -404,7 +426,7 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
    * 
    * @method mask
    * @for PImage
-   * @param  {PImage|undefined} srcImage source image
+   * @param {PImage|undefined} srcImage source image
    *
    * TODO: - Accept an array of alpha values.
    *       - Use other channels of an image. p5 uses the
@@ -421,7 +443,17 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
     }
     var currBlend = this.canvas.getContext('2d').globalCompositeOperation;
 
-    var copyArgs = [pImage, 0, 0, pImage.width, pImage.height, 0, 0, this.width, this.height];
+    var copyArgs = [
+      pImage,
+      0,
+      0,
+      pImage.width,
+      pImage.height,
+      0,
+      0,
+      this.width,
+      this.height
+    ];
 
     this.canvas.getContext('2d').globalCompositeOperation = 'destination-out';
     this.copy.apply(this, copyArgs);
@@ -433,9 +465,10 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
    * 
    * @method filter
    * @for PImage
-   * @param  {String} operation one of threshold, gray, invert, posterize and opaque
-   *                            see Filters.js for docs on each available filter
-   * @param  {Number|undefined} value
+   * @param {String} operation one of threshold, gray, invert, posterize and 
+   *                           opaque see Filters.js for docs on each available
+   *                           filter
+   * @param {Number|undefined} value
    */
   PImage.prototype.filter = function(operation, value) {
     Filters.apply(this.canvas, Filters[operation.toLowerCase()], value);
@@ -462,19 +495,13 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
    *            darken | lighten | color-dodge | color-burn | hard-light | 
    *            soft-light | difference | exclusion | hue | saturation | 
    *            color | luminosity
-
+   *
    * 
    * http://blogs.adobe.com/webplatform/2013/01/28/blending-features-in-canvas/
    * 
    */
   PImage.prototype.blend = function() {
-    var currBlend = this.canvas.getContext('2d').globalCompositeOperation;
-    var blendMode = arguments[arguments.length - 1];
-    var copyArgs = Array.prototype.slice.call(arguments, 0, arguments.length - 1);
-
-    this.canvas.getContext('2d').globalCompositeOperation = blendMode;
-    this.copy.apply(this, copyArgs);
-    this.canvas.getContext('2d').globalCompositeOperation = currBlend;
+    p5.prototype.blend.apply(this, arguments);
   };
 
   /**
@@ -495,7 +522,7 @@ Before using the pixels[] array, be sure to use the loadPixels() method on the i
     // var extension = components[components.length - 1];
     var mimeType;
     
-    // http://en.wikipedia.org/wiki/Comparison_of_web_browsers#Image_format_support
+    // en.wikipedia.org/wiki/Comparison_of_web_browsers#Image_format_support
     switch(extension.toLowerCase()){
     case 'png':
       mimeType = 'image/png';

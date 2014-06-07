@@ -20,8 +20,35 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      files: ['src/**/*.js'],
-      tasks: ['jshint', 'requirejs']
+      // p5 dist
+      main: {
+        files: ['src/**/*.js'],
+        tasks: ['jshint', 'requirejs'],
+        options: { livereload: true }
+      },
+      // reference
+      reference_build: {
+        files: ['docs/yuidoc-p5-theme/**/*'],
+        tasks: ['yuidoc'],
+        options: { livereload: true, interrupt: true }
+      },
+      // scripts for yuidoc/reference theme
+      yuidoc_theme_build: {
+        files: ['docs/yuidoc-p5-theme-src/scripts/**/*'],
+        tasks: ['requirejs:yuidoc_theme']
+      },
+      // css for yuidoc/reference theme (see 'sass' task)
+      yuidoc_theme_sass: {
+        files: ['docs/yuidoc-p5-theme-src/sass/**/*.scss'],
+        tasks: ['sass']
+      },
+    },
+    sass: {
+      yuidoc_theme: {
+        files: {
+          'docs/yuidoc-p5-theme/assets/css/main.css': 'docs/yuidoc-p5-theme-src/sass/main.scss'
+        }
+      }
     },
     mocha: {
       test: {
@@ -31,7 +58,8 @@ module.exports = function(grunt) {
           // reporter: 'test/reporter/simple.js',
           reporter: 'Nyan',
           run: true,
-          log: true
+          log: true,
+          logErrors: true
         }
       },
     },
@@ -45,7 +73,7 @@ module.exports = function(grunt) {
             return require('amdclean').clean(contents);
           },
           optimize: 'none',
-          out: 'dist/p5.js',
+          out: 'lib/p5.js',
           paths: {
             'app': 'src/app',
             'color.creating_reading': 'src/color/creating_reading',
@@ -57,7 +85,7 @@ module.exports = function(grunt) {
             'dom.pelement': 'src/dom/pelement',
             'environment': 'src/environment/environment',
             'image': 'src/image/image',
-            'image.loading_displaying': 'src/image/loading_displaying',
+            'image.pixels': 'src/image/pixels',
             'input.files': 'src/input/files',
             'input.keyboard': 'src/input/keyboard',
             'input.mouse': 'src/input/mouse',
@@ -100,10 +128,23 @@ module.exports = function(grunt) {
             return require('amdclean').clean(contents);
           },
           optimize: 'uglify2',
-          out: 'dist/p5.min.js',
+          out: 'lib/p5.min.js',
           paths: '<%= requirejs.unmin.options.paths %>',
           useStrict: true,
           wrap: true
+        }
+      },
+      yuidoc_theme: {
+        options: {
+          baseUrl: './docs/yuidoc-p5-theme-src/scripts/',
+          mainConfigFile: './docs/yuidoc-p5-theme-src/scripts/config.js',
+          name: 'main',
+          out: './docs/yuidoc-p5-theme/assets/js/reference.js',
+          optimize: 'none',
+          generateSourceMaps: true,
+          findNestedDependencies: true,
+          wrap: true,
+          paths: { 'jquery': 'empty:' }
         }
       }
     },
@@ -114,7 +155,7 @@ module.exports = function(grunt) {
         version: '<%= pkg.version %>',
         url: '<%= pkg.homepage %>',
         options: {
-          paths: 'src/',
+          paths: ['src/', 'lib/addons/'],
           //helpers: [],
           themedir: 'docs/yuidoc-p5-theme/',
           outdir: 'docs/reference/'
@@ -130,7 +171,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-yuidoc');
+  grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.registerTask('test', ['jshint', 'qunit']);
+  
   grunt.registerTask('yui', ['yuidoc']);
 
   //grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
