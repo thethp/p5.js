@@ -373,6 +373,10 @@ define(function (require) {
       this._curElement.context.setTransform(1, 0, 0, 1, 0, 0);
     }.bind(this);
 
+    //Vertices
+    this._curveVertices = [];
+    this._contourInited = false;
+    this._contourVertices = [];
     this._runFrames = function() {
       if (this._updateInterval) {
         clearInterval(this._updateInterval);

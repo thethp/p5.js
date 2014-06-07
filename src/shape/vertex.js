@@ -123,11 +123,19 @@ define(function (require) {
     var pt = {};
     pt.x = x;
     pt.y = y;
-    this._curveVertices.push(pt);
+    var curveVertices = this._curveVertices;
+    curveVertices.push(pt);
 
-    if(this._curveVertices.length >= 4) {
-      this.curve(this._curveVertices[0].x,this._curveVertices[0].y, this._curveVertices[1].x,this._curveVertices[1].y, this._curveVertices[2].x,this._curveVertices[2].y, this._curveVertices[3].x,this._curveVertices[3].y);
-      this._curveVertices.shift();
+    if(curveVertices.length >= 4) {
+      this.curve(curveVertices[0].x,
+                 curveVertices[0].y,
+                 curveVertices[1].x,
+                 curveVertices[1].y,
+                 curveVertices[2].x,
+                 curveVertices[2].y,
+                 curveVertices[3].x,
+                 curveVertices[3].y);
+      curveVertices.shift();
     }
 
     return this;
