@@ -80,9 +80,18 @@ define(function (require) {
     return this;
   };
 
-  p5.prototype.curveVertex = function() {
-    // TODO
+  p5.prototype.curveVertex = function(x,y) {
+    var pt = {};
+    pt.x = x;
+    pt.y = y;
+    this._curveVertices.push(pt);
+    
+    if(this._curveVertices.length >= 4) {
+      this.curve(this._curveVertices[0].x,this._curveVertices[0].y, this._curveVertices[1].x,this._curveVertices[1].y, this._curveVertices[2].x,this._curveVertices[2].y, this._curveVertices[3].x,this._curveVertices[3].y);
+      this._curveVertices.shift();
+    }
 
+    return this;
   };
 
   /**

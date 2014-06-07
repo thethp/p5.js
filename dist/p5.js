@@ -1,5 +1,4 @@
-(function () {
-var shim = function (require) {
+(function () {var shim = function (require) {
         window.requestDraw = function () {
             return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback, element) {
                 window.setTimeout(callback, 1000 / 60);
@@ -115,6 +114,7 @@ var core = function (require, shim, constants) {
             this.styles = [];
             this._bezierDetail = 20;
             this._curveDetail = 20;
+            this._curveVertices = [];
             this._contourInited = false;
             this._contourVertices = [];
             if (!sketch) {
@@ -2834,7 +2834,17 @@ var shapevertex = function (require, core, constants) {
             this.curElement.context.bezierCurveTo(x2, y2, x3, y3, x4, y4);
             return this;
         };
-        p5.prototype.curveVertex = function () {
+        p5.prototype.curveVertex = function (x, y) {
+            var pt = {};
+            pt.x = x;
+            pt.y = y;
+            this._curveVertices.push(pt);
+            console.log(this._curveVertices.length);
+            if (this._curveVertices.length >= 4) {
+                this._curveVertices.shift();
+            }
+            console.log('F' + this._curveVertices.length);
+            return this;
         };
         p5.prototype.endContour = function () {
             this._contourVertices.reverse();

@@ -116,6 +116,7 @@ define(function (require) {
     this._curveDetail = 20;
 
     //Vertices
+    this._curveVertices = [];
     this._contourInited = false;
     this._contourVertices = [];
 
